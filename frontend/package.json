@@ -1,0 +1,47 @@
+{
+  "name": "j76-incidentmind",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack --hostname 0.0.0.0",
+    "build": "next build --webpack",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write app components lib next.config.ts postcss.config.mjs",
+    "cf:build": "CLOUDFLARE_BUILD=1 opennextjs-cloudflare build",
+    "cf:preview": "wrangler dev",
+    "cf:deploy": "wrangler deploy",
+    "cf:check": "wrangler deploy --dry-run --outdir /tmp/j76-worker-dry-run",
+    "cf:api:deploy": "wrangler deploy --config wrangler.api.jsonc",
+    "cf:test": "node --import tsx --test cloudflare/tests/*.test.ts"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.0.0",
+    "tailwind-merge": "^3.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261107.1",
+    "@opennextjs/cloudflare": "^1.20.16",
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.0",
+    "wrangler": "^4.158.0",
+    "tsx": "^4.20.0"
+  },
+  "overrides": {
+    "glob": "^14.0.2",
+    "minimatch": "^11.0.1"
+  }
+}

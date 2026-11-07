@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: incidentmind
+      POSTGRES_PASSWORD: local_demo_only
+      POSTGRES_DB: incidentmind
+    volumes:
+      - incident-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U incidentmind -d incidentmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  hindsight:
+    image: ghcr.io/vectorize-io/hindsight:latest
+    environment:
+      HINDSIGHT_API_LLM_PROVIDER: ${HINDSIGHT_API_LLM_PROVIDER:-groq}
+      HINDSIGHT_API_LLM_API_KEY: ${HINDSIGHT_API_LLM_API_KEY:-}
+      HINDSIGHT_API_LLM_MODEL: ${HINDSIGHT_API_LLM_MODEL:-openai/gpt-oss-120b}
+      HINDSIGHT_API_WORKER_ID: j76-hindsight
+    ports:
+      - "127.0.0.1:8888:8888"
+      - "127.0.0.1:9999:9999"
+    shm_size: 1gb
+    stop_grace_period: 75s
+    volumes:
+      - hindsight-data:/home/hindsight/.pg0
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://incidentmind:local_demo_only@postgres:5432/incidentmind
+      HINDSIGHT_URL: http://hindsight:8888
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hindsight:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8000/ws/events}
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+volumes:
+  incident-db:
+  hindsight-data:

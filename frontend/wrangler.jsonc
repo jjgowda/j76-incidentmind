@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "j76-incidentmind",
+  "main": "cloudflare/web-worker.ts",
+  "compatibility_date": "2026-11-07",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "workers_dev": true,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "services": [
+    {
+      "binding": "BACKEND_SERVICE",
+      "service": "j76-incidentmind-api"
+    },
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "j76-incidentmind"
+    }
+  ],
+  "vars": {
+    "DEMO_USERNAME": "demo"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
